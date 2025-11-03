@@ -9,4 +9,7 @@ public class Produto
     public decimal Preco { get; set; }
     public float Estoque { get; set; }
     public DateTime DataCadastro { get; set; }
+    
+    public int CategoriaId { get; set; } //Realizando o relacionamento entre as duas entidades
+    public  Categoria? Categoria { get; set; }
 }

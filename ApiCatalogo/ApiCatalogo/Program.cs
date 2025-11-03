@@ -7,9 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection"); // string de conexao
-builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, 
-    ServerVersion.AutoDetect(mySqlConnection)));
+var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+// string de conexão
+builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, //Aqui estou, dizendo para usar, meu, SQL com essa conexão
+    ServerVersion.AutoDetect(mySqlConnection))); //Auto, detectar a versão do SQL
 
 var app = builder.Build();
 
