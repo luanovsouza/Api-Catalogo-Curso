@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace ApiCatalogo.Model;
 
@@ -10,7 +11,14 @@ public class Categoria
     }
     
     public int CategoriaId { get; set; }
+    
+    [Required]
+    [StringLength(80)]
     public string? Nome { get; set; }
+    
+    [Required]
+    [StringLength(80)]
     public string? ImagemUrl { get; set; }
+    
     public ICollection<Produto>? Produtos { get; set; }
 }
