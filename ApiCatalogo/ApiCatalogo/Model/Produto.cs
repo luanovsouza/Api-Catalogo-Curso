@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ApiCatalogo.Model;
 
 public class Produto
 {
+    [JsonIgnore]
     public int ProdutoId { get; set; }
     
     [Required]
@@ -27,6 +29,9 @@ public class Produto
     public DateTime DataCadastro { get; set; }
     
     //Relacionamentos
+    
     public int CategoriaId { get; set; } //Realizando o relacionamento entre as duas entidades (FK)
+
+    [JsonIgnore]
     public  Categoria? Categoria { get; set; }
 }
