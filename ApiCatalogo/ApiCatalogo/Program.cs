@@ -35,7 +35,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlCon
     ServerVersion.AutoDetect(mySqlConnection))); //Auto, detectar a versão do SQL
 
 
-builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration()
+builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
 {
     LogLevel = LogLevel.Information
 }));
@@ -48,7 +48,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "Api Catalogo"));
-    app.ConfigureExceptionsHandler();
+   // app.ConfigureExceptionsHandler();
 }
 
 app.UseHttpsRedirection();

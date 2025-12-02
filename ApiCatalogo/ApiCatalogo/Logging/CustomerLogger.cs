@@ -16,24 +16,22 @@ public class CustomerLogger : ILogger
     {
         string mensagem = $"{logLevel.ToString()}: {eventId.Id} - {formatter(state, exception)}";
         
-        
+        WriteArchiveText(mensagem);
     }
 
     private void WriteArchiveText(string texto)
     {
-        var path = @"C:\Users\gamer\Documents\Api Catalogo\TextoError.txt";
+        var path = @"C:\Users\gamer\Documents\Logs\TextoError.txt";
 
-        using (StreamWriter sw = new StreamWriter(path, true))
+        using StreamWriter sw = new StreamWriter(path, true);
+        try
         {
-            try
-            {
-                sw.WriteLine(texto);
-                sw.Close();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            sw.WriteLine(texto);
+            sw.Close();
+        }
+        catch (Exception)
+        {
+            throw;
         }
     }
     
