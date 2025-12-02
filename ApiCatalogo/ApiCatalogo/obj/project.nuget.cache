@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "x7dz/Lz41hc=",
+  "dgSpecHash": "QNnq0V0NGU0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\gamer\\OneDrive\\Documentos\\Curso WEB API ASP.NET\\Projeto Web API\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
+  "projectFilePath": "C:\\Users\\gamer\\Documents\\Api Catalogo\\Api-Catalogo-Curso\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\gamer\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\gamer\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

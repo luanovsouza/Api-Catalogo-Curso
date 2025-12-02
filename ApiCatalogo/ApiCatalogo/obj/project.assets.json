@@ -6717,11 +6717,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\gamer\\OneDrive\\Documentos\\Curso WEB API ASP.NET\\Projeto Web API\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
+      "projectUniqueName": "C:\\Users\\gamer\\Documents\\Api Catalogo\\Api-Catalogo-Curso\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
       "projectName": "ApiCatalogo",
-      "projectPath": "C:\\Users\\gamer\\OneDrive\\Documentos\\Curso WEB API ASP.NET\\Projeto Web API\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
+      "projectPath": "C:\\Users\\gamer\\Documents\\Api Catalogo\\Api-Catalogo-Curso\\ApiCatalogo\\ApiCatalogo\\ApiCatalogo.csproj",
       "packagesPath": "C:\\Users\\gamer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\gamer\\OneDrive\\Documentos\\Curso WEB API ASP.NET\\Projeto Web API\\ApiCatalogo\\ApiCatalogo\\obj\\",
+      "outputPath": "C:\\Users\\gamer\\Documents\\Api Catalogo\\Api-Catalogo-Curso\\ApiCatalogo\\ApiCatalogo\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\gamer\\AppData\\Roaming\\NuGet\\NuGet.Config"
