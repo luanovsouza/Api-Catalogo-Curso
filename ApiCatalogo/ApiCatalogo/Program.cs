@@ -3,6 +3,8 @@ using ApiCatalogo.Context;
 using ApiCatalogo.Extensions;
 using ApiCatalogo.Filters;
 using ApiCatalogo.Logging;
+using ApiCatalogo.Repositories;
+using ApiCatalogo.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +39,11 @@ var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnecti
 //Configurando o MySql 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, //Aqui estou, dizendo para usar, meu, SQL com essa conexão
     ServerVersion.AutoDetect(mySqlConnection))); //Auto, detectar a versão do SQL
+
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();/*
+    Toda vez que chamar e que, todo mundo chamar a Interface da categoria, vai
+    usar a classe CategoriaRepository
+ */
 
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
