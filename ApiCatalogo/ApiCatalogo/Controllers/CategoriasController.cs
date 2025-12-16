@@ -11,17 +11,17 @@ namespace ApiCatalogo.Controllers;
 [Route("api/[controller]")]
 public class CategoriasController : ControllerBase
 {
-    private readonly ICategoriaRepository _repository;
+    private readonly IRepositoryGeneric<Categoria> _repository;
 
-    public CategoriasController(ICategoriaRepository repository)
+    public CategoriasController(IRepositoryGeneric<Categoria> repository)
     {
         _repository = repository;
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Categoria>>> BuscarCategoriasAsync()
+    public ActionResult<IEnumerable<Categoria>> BuscarCategorias()
     {
-        var categorias = await _repository.GetAllAsync();
+        var categorias = _repository.GetAll();
 
         return Ok(categorias);
     }
@@ -29,7 +29,7 @@ public class CategoriasController : ControllerBase
     [HttpGet("CategoriaProduto/{id:int:min(1)}")]
     public ActionResult<Categoria> BuscarCategoriaProduto(int id)
     {
-        var categoriaProduto = _repository.GetByIdAsync(id);
+        var categoriaProduto = _repository.GetById(cp => cp.CategoriaId == id);
 
         if (categoriaProduto == null)
             return NotFound($"Categoria do id {id} não foi encontrado ou não existe...");
@@ -40,9 +40,9 @@ public class CategoriasController : ControllerBase
 
     //Buscar por ID
     [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-    public async Task<ActionResult<Categoria>> BuscarCategoria(int id)
+    public ActionResult<Categoria> BuscarCategoria(int id)
     {
-        var categoria = await _repository.GetByIdAsync(id);
+        var categoria =  _repository.GetById(c => c.CategoriaId == id);
 
         if (categoria == null)
             return NotFound($"Categoria do id {id} não encontrado...");
@@ -52,13 +52,13 @@ public class CategoriasController : ControllerBase
 
     //Criar uma categoria
     [HttpPost]
-    public async Task<IActionResult> CriarProduto([FromBody] Categoria? categoria)
+    public IActionResult CriarProduto([FromBody] Categoria? categoria)
     {
         if (categoria == null)
             return BadRequest("Dados inválidos digite novamente!");
 
 
-        await _repository.CreateAsync(categoria);
+        _repository.Create(categoria);
 
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("ObterProduto",
@@ -66,27 +66,27 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> Put(int id, Categoria categoria)
+    public ActionResult Put(int id, Categoria categoria)
     {
         if (id != categoria.CategoriaId)
             return BadRequest("Dados invalidos!");
 
-        await _repository.UpdateAsync(categoria);
+        _repository.Update(categoria);
         
 
         return Ok(categoria);
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> Delete(int id)
+    public ActionResult Delete(int id)
     {
-        var categoriaDeletada = _repository.GetByIdAsync(id);
+        var categoriaDeletada = _repository.GetById(cp => cp.CategoriaId == id);
 
         if (categoriaDeletada == null)
             return NotFound($"Categoria do id={id} não encontrada...");
 
 
-        await _repository.DeleteAsync(id);
+        _repository.Delete(categoriaDeletada);
         
         return Ok(categoriaDeletada);
     }

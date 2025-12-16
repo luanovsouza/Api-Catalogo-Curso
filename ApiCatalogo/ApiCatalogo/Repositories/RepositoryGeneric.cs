@@ -37,6 +37,7 @@ public class RepositoryGeneric<T> : IRepositoryGeneric<T> where T : class
         _context.SaveChanges();
         return entity;
     }
+    
 
     public T Delete(T entity)
     {
