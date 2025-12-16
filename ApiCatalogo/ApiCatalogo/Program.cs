@@ -44,6 +44,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();/*
     Toda vez que chamar e que, todo mundo chamar a Interface da categoria, vai
     usar a classe CategoriaRepository
  */
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration

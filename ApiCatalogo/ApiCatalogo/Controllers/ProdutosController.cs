@@ -1,5 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.Model;
+using ApiCatalogo.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,11 @@ namespace ApiCatalogo.Controllers;
 public class ProdutosController : ControllerBase
 {
     //Injeção de dependencia
-    private readonly AppDbContext _context;
+    private readonly IProdutoRepository _repository;
 
-    public ProdutosController(AppDbContext context)
+    public ProdutosController(IProdutoRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
 
@@ -22,16 +23,17 @@ public class ProdutosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Produto?>>> BuscarProdutos()
     {
-        var produtos = await _context.Produtos.Take(5).ToListAsync(); //Vai retornar uma lista de produtos
+        var produtos = await _repository.GetAllAsync(); //Vai retornar uma lista de produtos
 
-        return produtos;
+        return Ok(produtos);
     }
 
     //Buscar por ID
     [HttpGet("{id:int}", Name = "AcharProduct")]
     public async Task<ActionResult<Produto?>> FindProduct(int id)
     {
-        var produto = await _context.Produtos.FirstOrDefaultAsync(p => p != null && p.ProdutoId == id);
+        var produto = await _repository.GetByIdAsync(id);
+        
         if (produto == null)
             return NotFound("Produto não encontrado...");
 
@@ -43,25 +45,23 @@ public class ProdutosController : ControllerBase
     public ActionResult CriarProduto(Produto? product)
     {
         if (product == null)
-            return BadRequest();
+            return BadRequest("O produto esta vazio, digite novamente.");
 
 
-        _context.Produtos.Add(product);
-        _context.SaveChanges();
+        _repository.CreateAsync(product);
 
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("AcharProduct",
-            new { id = product.ProdutoId }, product); // Vai retornar 201
+            new { id = product.Id }, product); 
     }
 
     [HttpPut("{id:int}")]
     public ActionResult Put(int id, Produto produto)
     {
-        if (id != produto.ProdutoId)
-            return BadRequest();
+        if (id != produto.Id)
+            return BadRequest($"O id = {id} não existe!");
 
-        _context.Entry(produto).State = EntityState.Modified; //Estou dizendo q o produto esta modificado
-        _context.SaveChanges();
+        _repository.UpdateAsync(produto);
 
         return Ok(produto);
     }
@@ -69,15 +69,14 @@ public class ProdutosController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult Delete(int id)
     {
-        var produtoDeletado = _context.Produtos.FirstOrDefault(p => p != null && p.ProdutoId == id);
+        var produtoDeletado = _repository.GetByIdAsync(id);
 
         if (produtoDeletado == null)
             return NotFound($"Produto do id={id} não foi localizado...");
 
 
-        _context.Produtos.Remove(produtoDeletado);
-        _context.SaveChanges();
+        var categoriaExcluida = _repository.DeleteAsync(id);
 
-        return Ok(produtoDeletado);
+        return Ok(categoriaExcluida);
     }
 }

@@ -6,8 +6,8 @@ namespace ApiCatalogo.Model;
 
 public class Produto
 {
-    [JsonIgnore]
-    public int ProdutoId { get; set; }
+    [Key]
+    public int Id { get; set; }
     
     [Required]
     [StringLength(80)]
