@@ -45,6 +45,8 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();/*
     usar a classe CategoriaRepository
  */
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped(typeof(IRepositoryGeneric<>),  typeof(RepositoryGeneric<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration

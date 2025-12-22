@@ -11,34 +11,31 @@ namespace ApiCatalogo.Controllers;
 public class ProdutosController : ControllerBase
 {
     //Injeção de dependencia
-    private readonly IRepositoryGeneric<Produto> _repository;
-    private readonly IProdutoRepository _produtoRepository;
+    private readonly IUnitOfWork _uof;
 
-    public ProdutosController(IRepositoryGeneric<Produto> repository, IProdutoRepository produtoRepository)
+    public ProdutosController(IUnitOfWork uof)
     {
-        _repository = repository;
-        _produtoRepository = produtoRepository;
+        _uof = uof;
     }
 
-
-    [HttpGet("produtos/{id:int}")]
-    public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
-    {
-        var produtos = _produtoRepository.ObterProdutosPorCategoria(id);
-
-        if (produtos is null)
-            return NotFound();
-        
-        return Ok(produtos);
-    }
-    
     
     //Buscar todos os Produtos
     [HttpGet]
     public ActionResult<IEnumerable<Produto?>> BuscarProdutos()
     {
-        var produtos = _repository.GetAll(); //Vai retornar uma lista de produtos
+        var produtos = _uof.ProdutoRepository.GetAll(); //Vai retornar uma lista de produtos
 
+        return Ok(produtos);
+    }
+    
+    [HttpGet("produtosCategoria/{id:int}")]
+    public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
+    {
+        var produtos = _uof.ProdutoRepository.GetById(pr => pr.CategoriaId == id);
+
+        if (produtos is null)
+            return NotFound();
+        
         return Ok(produtos);
     }
 
@@ -46,14 +43,14 @@ public class ProdutosController : ControllerBase
     [HttpGet("{id:int}", Name = "AcharProduct")]
     public ActionResult<Produto?> FindProduct(int id)
     {
-        var produto = _repository.GetById(pr => pr.Id == id);
+        var produto = _uof.ProdutoRepository.GetById(pr => pr.CategoriaId == id);
         
         if (produto == null)
             return NotFound("Produto não encontrado...");
 
         return Ok(produto);
     }
-
+    
     // //Criar um produto
     [HttpPost]
     public ActionResult CriarProduto(Produto? product)
@@ -62,7 +59,8 @@ public class ProdutosController : ControllerBase
             return BadRequest("O produto esta vazio, digite novamente.");
 
 
-        _repository.Create(product);
+        _uof.ProdutoRepository.Create(product);
+        _uof.Commit();
 
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("AcharProduct",
@@ -75,7 +73,8 @@ public class ProdutosController : ControllerBase
         if (id != produto.Id)
             return BadRequest($"O id = {id} não existe!");
 
-        _repository.Update(produto);
+        _uof.ProdutoRepository.Update(produto);
+        _uof.Commit();
 
         return Ok(produto);
     }
@@ -83,13 +82,14 @@ public class ProdutosController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult Delete(int id)
     {
-        var produtoDeletado = _repository.GetById(pd => pd.Id == id);
+        var produtoDeletado = _uof.ProdutoRepository.GetById(pd => pd.Id == id);
 
         if (produtoDeletado == null)
             return NotFound($"Produto do id={id} não foi localizado...");
 
 
-        var categoriaExcluida = _repository.Delete(produtoDeletado);
+        var categoriaExcluida = _uof.ProdutoRepository.Delete(produtoDeletado);
+        _uof.Commit();
 
         return Ok(categoriaExcluida);
     }

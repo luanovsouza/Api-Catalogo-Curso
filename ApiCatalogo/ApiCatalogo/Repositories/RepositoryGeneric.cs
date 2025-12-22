@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using ApiCatalogo.Context;
 using ApiCatalogo.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiCatalogo.Repositories;
 
@@ -16,7 +17,7 @@ public class RepositoryGeneric<T> : IRepositoryGeneric<T> where T : class
     public IEnumerable<T> GetAll()
     {
         //Esse "set" ele é feito para acessar uma tabela ou uma coleçao em um banco de dados
-        return _context.Set<T>().ToList();
+        return _context.Set<T>().AsNoTracking().ToList();
     }
 
     public T? GetById(Expression<Func<T, bool>> predicate)
@@ -27,14 +28,14 @@ public class RepositoryGeneric<T> : IRepositoryGeneric<T> where T : class
     public T Create(T entity)
     {
         _context.Set<T>().Add(entity);
-        _context.SaveChanges();
+        //_context.SaveChanges();
         return entity;
     }
 
     public T Update(T entity)
     {
         _context.Set<T>().Update(entity);
-        _context.SaveChanges();
+      //  _context.SaveChanges();
         return entity;
     }
     
@@ -42,7 +43,7 @@ public class RepositoryGeneric<T> : IRepositoryGeneric<T> where T : class
     public T Delete(T entity)
     {
         _context.Set<T>().Remove(entity);
-        _context.SaveChanges();
+       //_context.SaveChanges();
         return entity;
     }
 }

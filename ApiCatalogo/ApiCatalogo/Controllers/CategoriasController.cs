@@ -11,17 +11,17 @@ namespace ApiCatalogo.Controllers;
 [Route("api/[controller]")]
 public class CategoriasController : ControllerBase
 {
-    private readonly IRepositoryGeneric<Categoria> _repository;
+    private readonly IUnitOfWork _uof;
 
-    public CategoriasController(IRepositoryGeneric<Categoria> repository)
+    public CategoriasController(IUnitOfWork uof)
     {
-        _repository = repository;
+        _uof = uof;
     }
     
     [HttpGet]
     public ActionResult<IEnumerable<Categoria>> BuscarCategorias()
     {
-        var categorias = _repository.GetAll();
+        var categorias = _uof.CategoriaRepository.GetAll();
 
         return Ok(categorias);
     }
@@ -29,7 +29,7 @@ public class CategoriasController : ControllerBase
     [HttpGet("CategoriaProduto/{id:int:min(1)}")]
     public ActionResult<Categoria> BuscarCategoriaProduto(int id)
     {
-        var categoriaProduto = _repository.GetById(cp => cp.CategoriaId == id);
+        var categoriaProduto = _uof.CategoriaRepository.GetById(cp => cp.CategoriaId == id);
 
         if (categoriaProduto == null)
             return NotFound($"Categoria do id {id} não foi encontrado ou não existe...");
@@ -42,7 +42,7 @@ public class CategoriasController : ControllerBase
     [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
     public ActionResult<Categoria> BuscarCategoria(int id)
     {
-        var categoria =  _repository.GetById(c => c.CategoriaId == id);
+        var categoria =  _uof.CategoriaRepository.GetById(c => c.CategoriaId == id);
 
         if (categoria == null)
             return NotFound($"Categoria do id {id} não encontrado...");
@@ -58,7 +58,8 @@ public class CategoriasController : ControllerBase
             return BadRequest("Dados inválidos digite novamente!");
 
 
-        _repository.Create(categoria);
+        _uof.CategoriaRepository.Create(categoria);
+        _uof.Commit();
 
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("ObterProduto",
@@ -71,8 +72,8 @@ public class CategoriasController : ControllerBase
         if (id != categoria.CategoriaId)
             return BadRequest("Dados invalidos!");
 
-        _repository.Update(categoria);
-        
+        _uof.CategoriaRepository.Update(categoria);
+        _uof.Commit();
 
         return Ok(categoria);
     }
@@ -80,13 +81,14 @@ public class CategoriasController : ControllerBase
     [HttpDelete("{id:int}")]
     public ActionResult Delete(int id)
     {
-        var categoriaDeletada = _repository.GetById(cp => cp.CategoriaId == id);
+        var categoriaDeletada = _uof.CategoriaRepository.GetById(cp => cp.CategoriaId == id);
 
         if (categoriaDeletada == null)
             return NotFound($"Categoria do id={id} não encontrada...");
 
 
-        _repository.Delete(categoriaDeletada);
+        _uof.CategoriaRepository.Delete(categoriaDeletada);
+        _uof.Commit();
         
         return Ok(categoriaDeletada);
     }
