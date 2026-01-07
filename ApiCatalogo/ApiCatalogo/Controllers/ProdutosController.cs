@@ -90,6 +90,7 @@ public class ProdutosController : ControllerBase
 
         var categoriaExcluida = _uof.ProdutoRepository.Delete(produtoDeletado);
         _uof.Commit();
+        
 
         return Ok(categoriaExcluida);
     }

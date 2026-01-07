@@ -1,4 +1,6 @@
 ﻿using ApiCatalogo.Context;
+using ApiCatalogo.DTOs;
+using ApiCatalogo.DTOs.Mappings;
 using ApiCatalogo.Model;
 using ApiCatalogo.Repositories;
 using ApiCatalogo.Repositories.Interfaces;
@@ -23,6 +25,8 @@ public class CategoriasController : ControllerBase
     {
         var categorias = _uof.CategoriaRepository.GetAll();
 
+        var categoriasDto = categorias.ToCategoriasDtoList();
+
         return Ok(categorias);
     }
 
@@ -34,7 +38,9 @@ public class CategoriasController : ControllerBase
         if (categoriaProduto == null)
             return NotFound($"Categoria do id {id} não foi encontrado ou não existe...");
 
-        return Ok(categoriaProduto);
+        var categoriaDto = categoriaProduto.ToCategoriaDto();
+
+        return Ok(categoriaDto);
     }
 
 
@@ -47,35 +53,44 @@ public class CategoriasController : ControllerBase
         if (categoria == null)
             return NotFound($"Categoria do id {id} não encontrado...");
 
-        return Ok(categoria);
+        var categoriaDto = categoria.ToCategoriaDto();
+
+        return Ok(categoriaDto);
     }
 
     //Criar uma categoria
     [HttpPost]
-    public IActionResult CriarProduto([FromBody] Categoria? categoria)
+    public IActionResult CriarProduto([FromBody] CategoriaDto? categoriaDto)
     {
-        if (categoria == null)
+        if (categoriaDto == null)
             return BadRequest("Dados inválidos digite novamente!");
 
-
-        _uof.CategoriaRepository.Create(categoria);
+        
+        var categoriaCriada = categoriaDto.ToCategoria();
+        
+        _uof.CategoriaRepository.Create(categoriaCriada);
         _uof.Commit();
-
+        
+        var novaCategoriaDto = categoriaCriada.ToCategoriaDto();
+        
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("ObterProduto",
-            new { id = categoria.CategoriaId }, categoria); // Vai retornar 201
+            new { id = novaCategoriaDto.CategoriaId }, novaCategoriaDto); // Vai retornar 201
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult Put(int id, Categoria categoria)
+    public ActionResult Put(int id, CategoriaDto categoriaDto)
     {
-        if (id != categoria.CategoriaId)
+        if (id != categoriaDto.CategoriaId)
             return BadRequest("Dados invalidos!");
-
+        
+        var categoria = categoriaDto.ToCategoria();
         _uof.CategoriaRepository.Update(categoria);
         _uof.Commit();
 
-        return Ok(categoria);
+        var categoriaAtualizadaDto = categoria.ToCategoriaDto();
+
+        return Ok(categoriaAtualizadaDto);
     }
 
     [HttpDelete("{id:int}")]
@@ -86,10 +101,12 @@ public class CategoriasController : ControllerBase
         if (categoriaDeletada == null)
             return NotFound($"Categoria do id={id} não encontrada...");
 
-
+        
         _uof.CategoriaRepository.Delete(categoriaDeletada);
         _uof.Commit();
         
-        return Ok(categoriaDeletada);
+        var categoriaDeletadaDto = categoriaDeletada.ToCategoriaDto();
+        
+        return Ok(categoriaDeletadaDto);
     }
 }
