@@ -1,6 +1,8 @@
 ﻿using ApiCatalogo.Context;
+using ApiCatalogo.DTOs;
 using ApiCatalogo.Model;
 using ApiCatalogo.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,75 +14,91 @@ public class ProdutosController : ControllerBase
 {
     //Injeção de dependencia
     private readonly IUnitOfWork _uof;
+    private readonly IMapper _mapper;
 
-    public ProdutosController(IUnitOfWork uof)
+    public ProdutosController(IUnitOfWork uof, IMapper mapper)
     {
         _uof = uof;
+        _mapper = mapper;
     }
 
     
     //Buscar todos os Produtos
     [HttpGet]
-    public ActionResult<IEnumerable<Produto?>> BuscarProdutos()
+    public ActionResult<IEnumerable<ProdutoDto>> BuscarProdutos()
     {
         var produtos = _uof.ProdutoRepository.GetAll(); //Vai retornar uma lista de produtos
-
-        return Ok(produtos);
+        
+        //var destino = _mapper.Map<Destino>(origem);
+        var produtosDto = _mapper.Map<IEnumerable<ProdutoDto>>(produtos);
+        
+        return Ok(produtosDto);
     }
     
     [HttpGet("produtosCategoria/{id:int}")]
-    public ActionResult<IEnumerable<Produto>> GetProdutosCategoria(int id)
+    public ActionResult<IEnumerable<ProdutoDto>> GetProdutosCategoria(int id)
     {
-        var produtos = _uof.ProdutoRepository.GetById(pr => pr.CategoriaId == id);
+        var produto = _uof.ProdutoRepository.GetById(pr => pr.CategoriaId == id);
 
-        if (produtos is null)
+        if (produto is null)
             return NotFound();
         
-        return Ok(produtos);
+        var produtoDto = _mapper.Map<IEnumerable<ProdutoDto>>(produto);
+        
+        return Ok(produtoDto);
     }
 
     //Buscar por ID
     [HttpGet("{id:int}", Name = "AcharProduct")]
-    public ActionResult<Produto?> FindProduct(int id)
+    public ActionResult<ProdutoDto> FindProduct(int id)
     {
         var produto = _uof.ProdutoRepository.GetById(pr => pr.CategoriaId == id);
         
         if (produto == null)
             return NotFound("Produto não encontrado...");
-
-        return Ok(produto);
+        
+        var produtoDto = _mapper.Map<ProdutoDto>(produto);
+        
+        return Ok(produtoDto);
     }
     
     // //Criar um produto
     [HttpPost]
-    public ActionResult CriarProduto(Produto? product)
+    public async Task<ActionResult<ProdutoDto>> CriarProduto(ProdutoDto? productDto)
     {
-        if (product == null)
+        if (productDto == null)
             return BadRequest("O produto esta vazio, digite novamente.");
 
-
-        _uof.ProdutoRepository.Create(product);
-        _uof.Commit();
-
+        var product = _mapper.Map<Produto>(productDto);
+        
+        _uof.ProdutoRepository.Create(product); 
+        await _uof.Commit();
+        
+        var newproductDto = _mapper.Map<ProdutoDto>(product);
+        
         //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
         return new CreatedAtRouteResult("AcharProduct",
-            new { id = product.Id }, product); 
+            new { id = newproductDto.Id }, newproductDto); 
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult Put(int id, Produto produto)
+    public async Task<ActionResult<ProdutoDto>> Put(int id, ProdutoDto? produtoDto)
     {
-        if (id != produto.Id)
+        if (id != produtoDto.Id)
             return BadRequest($"O id = {id} não existe!");
 
+        var produto = _mapper.Map<Produto>(produtoDto);
+        
         _uof.ProdutoRepository.Update(produto);
-        _uof.Commit();
+        await _uof.Commit();
+        
+        var produtoDtoAtualizado = _mapper.Map<ProdutoDto>(produto);
 
-        return Ok(produto);
+        return Ok(produtoDtoAtualizado);
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult<ProdutoDto>> Delete(int id)
     {
         var produtoDeletado = _uof.ProdutoRepository.GetById(pd => pd.Id == id);
 
@@ -89,9 +107,10 @@ public class ProdutosController : ControllerBase
 
 
         var categoriaExcluida = _uof.ProdutoRepository.Delete(produtoDeletado);
-        _uof.Commit();
+        await _uof.Commit();
         
+        var categoriaDeletadaDto = _mapper.Map<ProdutoDto>(categoriaExcluida);
 
-        return Ok(categoriaExcluida);
+        return Ok(categoriaDeletadaDto);
     }
 }

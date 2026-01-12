@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using ApiCatalogo.Context;
+using ApiCatalogo.DTOs.Mappings;
 using ApiCatalogo.Extensions;
 using ApiCatalogo.Filters;
 using ApiCatalogo.Logging;
@@ -16,7 +17,8 @@ builder.Services.AddControllers(options =>
 }).AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
+}).AddNewtonsoftJson();
+
 
 
 builder.Services.AddSwaggerGen(c =>
@@ -38,7 +40,7 @@ var mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnecti
 
 //Configurando o MySql 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, //Aqui estou, dizendo para usar, meu, SQL com essa conexão
-    ServerVersion.AutoDetect(mySqlConnection))); //Auto, detectar a versão do SQL
+    ServerVersion.AutoDetect(mySqlConnection))); //Auto-detectar a versão do SQL
 
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();/*
     Toda vez que chamar e que, todo mundo chamar a Interface da categoria, vai
@@ -53,6 +55,8 @@ builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderCon
 {
     LogLevel = LogLevel.Information
 }));
+
+builder.Services.AddAutoMapper(typeof(ProdutoDtoMapping));//Fazendo a configuração do serviço do AutoMapper no container
 
 var app = builder.Build();
 

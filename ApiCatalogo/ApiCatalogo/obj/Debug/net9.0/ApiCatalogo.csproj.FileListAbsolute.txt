@@ -504,3 +504,5 @@ C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo
 C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo\obj\Debug\net9.0\ApiCatalogo.pdb
 C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo\obj\Debug\net9.0\ApiCatalogo.genruntimeconfig.cache
 C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo\obj\Debug\net9.0\ref\ApiCatalogo.dll
+C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo\bin\Debug\net9.0\AutoMapper.dll
+C:\Users\gamer\Documents\Api Catalogo\Api-Catalogo-Curso\ApiCatalogo\ApiCatalogo\bin\Debug\net9.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
