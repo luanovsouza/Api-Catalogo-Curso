@@ -1,8 +1,10 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.DTOs;
 using ApiCatalogo.Model;
+using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +24,16 @@ public class ProdutosController : ControllerBase
         _mapper = mapper;
     }
 
+
+    [HttpGet("/api/Pagination")]
+    public ActionResult<IEnumerable<ProdutoDto>> Get([FromQuery] ProdutoParameters produtoParameters)
+    {
+        var produtos = _uof.ProdutoRepository.GetProdutos(produtoParameters);
+        
+        var produtosDto = _mapper.Map<IEnumerable<ProdutoDto>>(produtos);
+        
+        return Ok(produtosDto);
+    }
     
     //Buscar todos os Produtos
     [HttpGet]
@@ -81,6 +93,37 @@ public class ProdutosController : ControllerBase
             new { id = newproductDto.Id }, newproductDto); 
     }
 
+
+    [HttpPatch("{id:int}/UpdatePartial")]
+    public async Task<ActionResult<ProdutoDtoUpdateResponse>> Patch(int id,
+        JsonPatchDocument<ProdutoDtoUpdateRequest>? patchDoc)
+    {
+        if (patchDoc == null || id <= 0)
+            return BadRequest();
+
+        var produto = _uof.ProdutoRepository.GetById(pr => pr.Id == id);
+        
+        if (produto == null)
+            return NotFound("Produto nao encontrado...");
+
+        var produtoDtoReq = _mapper.Map<ProdutoDtoUpdateRequest>(produto);
+
+        patchDoc.ApplyTo(produtoDtoReq, ModelState);
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        _mapper.Map(produtoDtoReq, produto);
+    
+        _uof.ProdutoRepository.Update(produto);
+        await _uof.Commit();
+        
+
+        //var response = _mapper.Map<ProdutoDtoUpdateResponse>(produto);
+        return NoContent();
+    }
+    
+    
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ProdutoDto>> Put(int id, ProdutoDto? produtoDto)
     {

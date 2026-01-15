@@ -1,5 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.Model;
+using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,5 +18,12 @@ public class ProdutoRepository : RepositoryGeneric<Produto>, IProdutoRepository
     public IEnumerable<Produto> ObterProdutosPorCategoria(int id)
     {
         return GetAll().Where(p => p.CategoriaId == id);
+    }
+
+    public IEnumerable<Produto> GetProdutos(ProdutoParameters produtoParameters)
+    {
+        return GetAll().OrderBy(p => p.Nome)
+            .Skip((produtoParameters.PageNumber - 1) * produtoParameters.PageSize)
+            .Take(produtoParameters.PageSize).ToList();
     }
 }
