@@ -2,10 +2,13 @@
 using ApiCatalogo.DTOs;
 using ApiCatalogo.DTOs.Mappings;
 using ApiCatalogo.Model;
+using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories;
 using ApiCatalogo.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ApiCatalogo.Controllers;
 
@@ -14,10 +17,12 @@ namespace ApiCatalogo.Controllers;
 public class CategoriasController : ControllerBase
 {
     private readonly IUnitOfWork _uof;
+    private readonly IMapper _mapper;
 
-    public CategoriasController(IUnitOfWork uof)
+    public CategoriasController(IUnitOfWork uof, IMapper mapper)
     {
         _uof = uof;
+        _mapper = mapper;
     }
     
     [HttpGet]
@@ -28,6 +33,34 @@ public class CategoriasController : ControllerBase
         var categoriasDto = categorias.ToCategoriasDtoList();
 
         return Ok(categorias);
+    }
+
+
+    [HttpGet("/api/CategoryPagination")]
+    public ActionResult<IEnumerable<CategoriaDto>> Get([FromQuery] CategoriaParameters categoriaParameters)
+    {
+        var categorias = _uof.CategoriaRepository.GetCategorias(categoriaParameters);
+
+        var metaData = new
+        {
+            categorias.TotalCount,
+            categorias.PageSize,
+            categorias.CurrentPage,
+            categorias.TotalPages,
+            categorias.HasPrevious,
+            categorias.HasNext
+        };
+
+        if (categorias.CurrentPage > categorias.TotalPages)
+        {
+            return BadRequest("A lista esta vazia, não tem nada aqui!");
+        }
+        
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metaData));
+        
+        var categoriaDto = _mapper.Map<IEnumerable<CategoriaDto>>(categorias);
+
+        return Ok(categoriaDto);
     }
 
     [HttpGet("CategoriaProduto/{id:int:min(1)}")]

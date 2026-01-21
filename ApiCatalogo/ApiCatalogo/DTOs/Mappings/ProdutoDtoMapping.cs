@@ -9,7 +9,6 @@ public class ProdutoDtoMapping : Profile
     {
         CreateMap<Produto, ProdutoDto>().ReverseMap();// O reverseMap serve para poder reverter de Produto para Dto
         //e o Dto para Produto
-        CreateMap<Categoria, CategoriaDto>().ReverseMap();;
         CreateMap<Produto, ProdutoDtoUpdateResponse>().ReverseMap();
         CreateMap<Produto, ProdutoDtoUpdateRequest>().ReverseMap();
     }

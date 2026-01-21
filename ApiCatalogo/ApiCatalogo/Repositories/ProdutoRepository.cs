@@ -20,10 +20,17 @@ public class ProdutoRepository : RepositoryGeneric<Produto>, IProdutoRepository
         return GetAll().Where(p => p.CategoriaId == id);
     }
 
-    public IEnumerable<Produto> GetProdutos(ProdutoParameters produtoParameters)
+    // public IEnumerable<Produto> GetProdutos(ProdutoParameters produtoParameters)
+    // {
+    //     return GetAll().OrderBy(p => p.Nome)
+    //         .Skip((produtoParameters.PageNumber - 1) * produtoParameters.PageSize)
+    //         .Take(produtoParameters.PageSize).ToList();
+    // }
+
+    public PagedList<Produto> GetProdutos(ProdutoParameters produtoParameters)
     {
-        return GetAll().OrderBy(p => p.Nome)
-            .Skip((produtoParameters.PageNumber - 1) * produtoParameters.PageSize)
-            .Take(produtoParameters.PageSize).ToList();
+        var produtos = GetAll().OrderBy(p => p.Id).AsQueryable();
+        var produtosOrenados = PagedList<Produto>.ToPagedList(produtos, produtoParameters.PageNumber, produtoParameters.PageSize);
+        return produtosOrenados;
     }
 }

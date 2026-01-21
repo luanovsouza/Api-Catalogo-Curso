@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ApiCatalogo.Controllers;
 
@@ -29,6 +30,23 @@ public class ProdutosController : ControllerBase
     public ActionResult<IEnumerable<ProdutoDto>> Get([FromQuery] ProdutoParameters produtoParameters)
     {
         var produtos = _uof.ProdutoRepository.GetProdutos(produtoParameters);
+
+        var metaData = new
+        {
+            produtos.TotalCount,
+            produtos.PageSize,
+            produtos.CurrentPage,
+            produtos.TotalPages,
+            produtos.HasPrevious,
+            produtos.HasNext
+        };// Passando no header as informações da pagina
+        
+        if (produtos.CurrentPage > produtos.TotalPages)
+        {
+            return BadRequest("A lista esta vazia, não tem nada aqui!");
+        }
+        
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metaData)); //Adicionando no response
         
         var produtosDto = _mapper.Map<IEnumerable<ProdutoDto>>(produtos);
         
