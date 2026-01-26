@@ -2,9 +2,9 @@
 
 public abstract class QueryStringParameters
 {
-    const int MaxPageSize = 50;
-    public int PageNumber { get; set; } = 1;
-    private int _pageSize = MaxPageSize;
+    const int MaxPageSize = 50; // Maximo de itens por pagina
+    public int PageNumber { get; set; } = 1; // Numero da pagina
+    private int _pageSize = MaxPageSize; //tamanho de itens por pagina
 
     public int PageSize
     {

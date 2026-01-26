@@ -1,5 +1,6 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.DTOs;
+using ApiCatalogo.Filters;
 using ApiCatalogo.Model;
 using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories.Interfaces;
@@ -50,6 +51,33 @@ public class ProdutosController : ControllerBase
         
         var produtosDto = _mapper.Map<IEnumerable<ProdutoDto>>(produtos);
         
+        return Ok(produtosDto);
+    }
+
+    [HttpGet("/api/filter/preco/Pagination")]
+    public ActionResult<IEnumerable<ProdutoDto>> GetProdutosFilterPreco([FromQuery] ProdutosFiltroPreco produtoParametersFiltroPreco)
+    {
+        var produtos = _uof.ProdutoRepository.GetProdutoFiltroPreco(produtoParametersFiltroPreco);
+        
+        var metaData = new
+        {
+            produtos.TotalCount,
+            produtos.PageSize,
+            produtos.CurrentPage,
+            produtos.TotalPages,
+            produtos.HasPrevious,
+            produtos.HasNext
+        };// Passando no header as informações da pagina
+        
+        if (produtos.CurrentPage > produtos.TotalPages)
+        {
+            return BadRequest("A lista esta vazia, não tem nada aqui!");
+        }
+        
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metaData)); 
+        
+        var produtosDto = _mapper.Map<IEnumerable<ProdutoDto>>(produtos);
+
         return Ok(produtosDto);
     }
     

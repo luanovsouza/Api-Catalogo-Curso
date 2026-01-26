@@ -1,6 +1,7 @@
 ﻿using ApiCatalogo.Context;
 using ApiCatalogo.DTOs;
 using ApiCatalogo.DTOs.Mappings;
+using ApiCatalogo.Filters;
 using ApiCatalogo.Model;
 using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories;
@@ -36,6 +37,40 @@ public class CategoriasController : ControllerBase
     }
 
 
+
+    [HttpGet("api/filter/nome/Pagination")]
+    public ActionResult<IEnumerable<CategoriaDto>> GetCategoriasNome(
+        [FromQuery] CategoriaFiltroNome categoriaFiltroNome)
+    {
+        var categorias = _uof.CategoriaRepository.GetCategoriaFiltroNome(categoriaFiltroNome);
+        
+        return  ObterCategoria(categorias);
+    }
+
+    private ActionResult<IEnumerable<CategoriaDto>> ObterCategoria(PagedList<Categoria> categorias)
+    {
+        var metaData = new
+        {
+            categorias.TotalCount,
+            categorias.PageSize,
+            categorias.CurrentPage,
+            categorias.TotalPages,
+            categorias.HasPrevious,
+            categorias.HasNext
+        };
+
+        if (categorias.CurrentPage > categorias.TotalPages)
+        {
+            return BadRequest("A lista esta vazia, não tem nada aqui!");
+        }
+        
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metaData));
+        
+        var categoriaDto = _mapper.Map<IEnumerable<CategoriaDto>>(categorias);
+
+        return Ok(categoriaDto);
+    }
+    
     [HttpGet("/api/CategoryPagination")]
     public ActionResult<IEnumerable<CategoriaDto>> Get([FromQuery] CategoriaParameters categoriaParameters)
     {
@@ -100,15 +135,20 @@ public class CategoriasController : ControllerBase
 
         
         var categoriaCriada = categoriaDto.ToCategoria();
-        
-        _uof.CategoriaRepository.Create(categoriaCriada);
-        _uof.Commit();
-        
-        var novaCategoriaDto = categoriaCriada.ToCategoriaDto();
-        
-        //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
-        return new CreatedAtRouteResult("ObterProduto",
-            new { id = novaCategoriaDto.CategoriaId }, novaCategoriaDto); // Vai retornar 201
+
+        if (categoriaCriada != null)
+        {
+            _uof.CategoriaRepository.Create(categoriaCriada);
+            _uof.Commit();
+
+            var novaCategoriaDto = categoriaCriada.ToCategoriaDto();
+
+            //CreatedAtRouteResult = Ira retornar o código 201 created, e precisamos passar isso
+            return new CreatedAtRouteResult("ObterProduto",
+                new { id = novaCategoriaDto.CategoriaId }, novaCategoriaDto); // Vai retornar 201
+        }
+
+        return BadRequest("Categoria Vazia, digite Novamente!");
     }
 
     [HttpPut("{id:int}")]

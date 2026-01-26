@@ -1,4 +1,6 @@
 ﻿using ApiCatalogo.Context;
+using ApiCatalogo.Enums;
+using ApiCatalogo.Filters;
 using ApiCatalogo.Model;
 using ApiCatalogo.Pagination;
 using ApiCatalogo.Repositories.Interfaces;
@@ -19,18 +21,43 @@ public class ProdutoRepository : RepositoryGeneric<Produto>, IProdutoRepository
     {
         return GetAll().Where(p => p.CategoriaId == id);
     }
-
-    // public IEnumerable<Produto> GetProdutos(ProdutoParameters produtoParameters)
-    // {
-    //     return GetAll().OrderBy(p => p.Nome)
-    //         .Skip((produtoParameters.PageNumber - 1) * produtoParameters.PageSize)
-    //         .Take(produtoParameters.PageSize).ToList();
-    // }
+    
 
     public PagedList<Produto> GetProdutos(ProdutoParameters produtoParameters)
     {
         var produtos = GetAll().OrderBy(p => p.Id).AsQueryable();
         var produtosOrenados = PagedList<Produto>.ToPagedList(produtos, produtoParameters.PageNumber, produtoParameters.PageSize);
         return produtosOrenados;
+    }
+
+    public PagedList<Produto> GetProdutoFiltroPreco(ProdutosFiltroPreco produtosFiltroPreco)
+    {
+        var produtos = GetAll().OrderBy(p => p.Id).AsQueryable();
+        
+        if (produtosFiltroPreco.Preco.HasValue && !string.IsNullOrEmpty(produtosFiltroPreco.PrecoCriterio.ToString()))
+        {
+            switch (produtosFiltroPreco.PrecoCriterio)
+            {
+                case PrecoCriterio.Maior:
+                    produtos = produtos.Where(p => p.Preco > produtosFiltroPreco.Preco).OrderBy(p => p.Id);
+                    break;
+                
+                case PrecoCriterio.Menor:
+                    produtos = produtos.Where(p => p.Preco < produtosFiltroPreco.Preco).OrderBy(p => p.Id);
+                    break;
+                
+                case PrecoCriterio.Igual:
+                    produtos = produtos.Where(p => p.Preco == produtosFiltroPreco.Preco).OrderBy(p => p.Id);
+                    break;
+                
+                default:
+                    throw new ArgumentOutOfRangeException("Esse argumento nao existe!");
+            }
+        }
+
+        var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos, produtosFiltroPreco.PageNumber,
+            produtosFiltroPreco.PageSize);
+        
+        return produtosFiltrados;
     }
 }
