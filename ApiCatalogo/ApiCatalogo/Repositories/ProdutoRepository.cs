@@ -17,22 +17,30 @@ public class ProdutoRepository : RepositoryGeneric<Produto>, IProdutoRepository
     {
     }
 
-    public IEnumerable<Produto> ObterProdutosPorCategoria(int id)
+    public async Task<IEnumerable<Produto>> ObterProdutosPorCategoriaAsync(int id)
     {
-        return GetAll().Where(p => p.CategoriaId == id);
+        var produtoPorCategoria = await GetAllAsync();
+        
+        var produtos = produtoPorCategoria.Where(p => p.CategoriaId == id);
+        
+        return produtos;
     }
     
 
-    public PagedList<Produto> GetProdutos(ProdutoParameters produtoParameters)
+    public async Task<PagedList<Produto>> GetProdutosAsync(ProdutoParameters produtoParameters)
     {
-        var produtos = GetAll().OrderBy(p => p.Id).AsQueryable();
-        var produtosOrenados = PagedList<Produto>.ToPagedList(produtos, produtoParameters.PageNumber, produtoParameters.PageSize);
-        return produtosOrenados;
+        var produtos = await GetAllAsync();
+
+        var produtosOrdenado = produtos.OrderBy(p => p.Id).AsQueryable();
+            
+        var resultado = PagedList<Produto>.ToPagedList(produtosOrdenado, produtoParameters.PageNumber, produtoParameters.PageSize);
+        
+        return resultado;
     }
 
-    public PagedList<Produto> GetProdutoFiltroPreco(ProdutosFiltroPreco produtosFiltroPreco)
+    public async Task<PagedList<Produto>> GetProdutoFiltroPrecoAsync(ProdutosFiltroPreco produtosFiltroPreco)
     {
-        var produtos = GetAll().OrderBy(p => p.Id).AsQueryable();
+        var produtos = await GetAllAsync();
         
         if (produtosFiltroPreco.Preco.HasValue && !string.IsNullOrEmpty(produtosFiltroPreco.PrecoCriterio.ToString()))
         {
@@ -55,7 +63,7 @@ public class ProdutoRepository : RepositoryGeneric<Produto>, IProdutoRepository
             }
         }
 
-        var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos, produtosFiltroPreco.PageNumber,
+        var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos.AsQueryable(), produtosFiltroPreco.PageNumber,
             produtosFiltroPreco.PageSize);
         
         return produtosFiltrados;

@@ -27,26 +27,25 @@ public class CategoriasController : ControllerBase
     }
     
     [HttpGet]
-    public ActionResult<IEnumerable<Categoria>> BuscarCategorias()
+    public async Task<ActionResult<IEnumerable<Categoria>>> BuscarCategorias()
     {
-        var categorias = _uof.CategoriaRepository.GetAll();
+        var categorias = await _uof.CategoriaRepository.GetAllAsync();
 
         var categoriasDto = categorias.ToCategoriasDtoList();
 
         return Ok(categorias);
     }
-
-
-
+    
     [HttpGet("api/filter/nome/Pagination")]
-    public ActionResult<IEnumerable<CategoriaDto>> GetCategoriasNome(
+    public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetCategoriasNome(
         [FromQuery] CategoriaFiltroNome categoriaFiltroNome)
     {
-        var categorias = _uof.CategoriaRepository.GetCategoriaFiltroNome(categoriaFiltroNome);
+        var categorias = await _uof.CategoriaRepository.GetCategoriaFiltroNomeAsync(categoriaFiltroNome);
         
         return  ObterCategoria(categorias);
     }
 
+    //Método para colocar o header no response
     private ActionResult<IEnumerable<CategoriaDto>> ObterCategoria(PagedList<Categoria> categorias)
     {
         var metaData = new
@@ -72,9 +71,9 @@ public class CategoriasController : ControllerBase
     }
     
     [HttpGet("/api/CategoryPagination")]
-    public ActionResult<IEnumerable<CategoriaDto>> Get([FromQuery] CategoriaParameters categoriaParameters)
+    public async Task<ActionResult<IEnumerable<CategoriaDto>>> Get([FromQuery] CategoriaParameters categoriaParameters)
     {
-        var categorias = _uof.CategoriaRepository.GetCategorias(categoriaParameters);
+        var categorias = await _uof.CategoriaRepository.GetCategoriasAsync(categoriaParameters);
 
         var metaData = new
         {
@@ -99,9 +98,9 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet("CategoriaProduto/{id:int:min(1)}")]
-    public ActionResult<Categoria> BuscarCategoriaProduto(int id)
+    public async Task<ActionResult<Categoria>> BuscarCategoriaProduto(int id)
     {
-        var categoriaProduto = _uof.CategoriaRepository.GetById(cp => cp.CategoriaId == id);
+        var categoriaProduto = await _uof.CategoriaRepository.GetByIdAsync(cp => cp.CategoriaId == id);
 
         if (categoriaProduto == null)
             return NotFound($"Categoria do id {id} não foi encontrado ou não existe...");
@@ -114,9 +113,9 @@ public class CategoriasController : ControllerBase
 
     //Buscar por ID
     [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
-    public ActionResult<Categoria> BuscarCategoria(int id)
+    public async Task<ActionResult<Categoria>> BuscarCategoria(int id)
     {
-        var categoria =  _uof.CategoriaRepository.GetById(c => c.CategoriaId == id);
+        var categoria =  await _uof.CategoriaRepository.GetByIdAsync(c => c.CategoriaId == id);
 
         if (categoria == null)
             return NotFound($"Categoria do id {id} não encontrado...");
@@ -139,7 +138,7 @@ public class CategoriasController : ControllerBase
         if (categoriaCriada != null)
         {
             _uof.CategoriaRepository.Create(categoriaCriada);
-            _uof.Commit();
+            _uof.CommitAsync();
 
             var novaCategoriaDto = categoriaCriada.ToCategoriaDto();
 
@@ -159,7 +158,7 @@ public class CategoriasController : ControllerBase
         
         var categoria = categoriaDto.ToCategoria();
         _uof.CategoriaRepository.Update(categoria);
-        _uof.Commit();
+        _uof.CommitAsync();
 
         var categoriaAtualizadaDto = categoria.ToCategoriaDto();
 
@@ -167,16 +166,16 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var categoriaDeletada = _uof.CategoriaRepository.GetById(cp => cp.CategoriaId == id);
+        var categoriaDeletada = await _uof.CategoriaRepository.GetByIdAsync(cp => cp.CategoriaId == id);
 
         if (categoriaDeletada == null)
             return NotFound($"Categoria do id={id} não encontrada...");
 
         
         _uof.CategoriaRepository.Delete(categoriaDeletada);
-        _uof.Commit();
+        _uof.CommitAsync();
         
         var categoriaDeletadaDto = categoriaDeletada.ToCategoriaDto();
         
