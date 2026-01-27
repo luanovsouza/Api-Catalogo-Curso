@@ -127,7 +127,7 @@ public class CategoriasController : ControllerBase
 
     //Criar uma categoria
     [HttpPost]
-    public IActionResult CriarProduto([FromBody] CategoriaDto? categoriaDto)
+    public async Task<IActionResult> CriarProduto([FromBody] CategoriaDto? categoriaDto)
     {
         if (categoriaDto == null)
             return BadRequest("Dados inválidos digite novamente!");
@@ -138,7 +138,7 @@ public class CategoriasController : ControllerBase
         if (categoriaCriada != null)
         {
             _uof.CategoriaRepository.Create(categoriaCriada);
-            _uof.CommitAsync();
+            await _uof.CommitAsync();
 
             var novaCategoriaDto = categoriaCriada.ToCategoriaDto();
 
@@ -151,14 +151,14 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult Put(int id, CategoriaDto categoriaDto)
+    public async Task<ActionResult> Put(int id, CategoriaDto categoriaDto)
     {
         if (id != categoriaDto.CategoriaId)
             return BadRequest("Dados invalidos!");
         
         var categoria = categoriaDto.ToCategoria();
         _uof.CategoriaRepository.Update(categoria);
-        _uof.CommitAsync();
+        await _uof.CommitAsync();
 
         var categoriaAtualizadaDto = categoria.ToCategoriaDto();
 
@@ -175,7 +175,7 @@ public class CategoriasController : ControllerBase
 
         
         _uof.CategoriaRepository.Delete(categoriaDeletada);
-        _uof.CommitAsync();
+        await _uof.CommitAsync();
         
         var categoriaDeletadaDto = categoriaDeletada.ToCategoriaDto();
         
