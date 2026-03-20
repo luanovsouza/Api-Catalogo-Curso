@@ -27,32 +27,32 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Login([FromBody] LoginModelDto model)
-    {
-        //Buscando o usuario na banco do identity do usuario
-
-        var user = await _userManager.FindByNameAsync(model.UserName!); // essa "!" siginifca que 
-        //eu tenho certeza de que nao é uma propiedade nula
-
-        //Verificando a senha do usuario, e vendo se o usuario nao é nulo 
-        if (user is not null && await _userManager.CheckPasswordAsync(user, model.PassWord!))
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
-            
-            //Lista de Claims usadas para criar o token de autenticação
-            var authClaims = new List<Claim>
-            {
-                //Claim (Informaçao do usuario) do nome dele
-                new Claim(ClaimTypes.Name, user.UserName!),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            foreach (var userRole in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            }
-        }
-    }
+    // [HttpPost]
+    // public async Task<IActionResult> Login([FromBody] LoginModelDto model)
+    // {
+    //     //Buscando o usuario na banco do identity do usuario
+    //
+    //     var user = await _userManager.FindByNameAsync(model.UserName!); // essa "!" siginifca que 
+    //     //eu tenho certeza de que nao é uma propiedade nula
+    //
+    //     //Verificando a senha do usuario, e vendo se o usuario nao é nulo 
+    //     if (user is not null && await _userManager.CheckPasswordAsync(user, model.PassWord!))
+    //     {
+    //         var userRoles = await _userManager.GetRolesAsync(user);
+    //         
+    //         //Lista de Claims usadas para criar o token de autenticação
+    //         var authClaims = new List<Claim>
+    //         {
+    //             //Claim (Informaçao do usuario) do nome dele
+    //             new Claim(ClaimTypes.Name, user.UserName!),
+    //             new Claim(ClaimTypes.Email, user.Email!),
+    //             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    //         };
+    //
+    //         foreach (var userRole in userRoles)
+    //         {
+    //             authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+    //         }
+    //     }
+    // }
 }
