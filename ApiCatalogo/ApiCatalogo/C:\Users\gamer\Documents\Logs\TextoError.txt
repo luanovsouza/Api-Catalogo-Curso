@@ -5,3 +5,17 @@ Information: 0 - Content root path: /home/souzza/Documentos/Api Catalogo/Api-Cat
 Warning: 3 - Failed to determine the https port for redirect.
 Error: 0 - Ocorreu uma exceção nao tratada: Status Code 500
 Information: 0 - Application is shutting down...
+Information: 14 - Now listening on: http://localhost:5236
+Information: 0 - Application started. Press Ctrl+C to shut down.
+Information: 0 - Hosting environment: Development
+Information: 0 - Content root path: /home/souzza/Documentos/Api Catalogo/Api-Catalogo-Curso/ApiCatalogo/ApiCatalogo
+Warning: 3 - Failed to determine the https port for redirect.
+Error: 0 - Ocorreu uma exceção nao tratada: Status Code 500
+Information: 0 - Application is shutting down...
+Information: 14 - Now listening on: http://localhost:5236
+Information: 0 - Application started. Press Ctrl+C to shut down.
+Information: 0 - Hosting environment: Development
+Information: 0 - Content root path: /home/souzza/Documentos/Api Catalogo/Api-Catalogo-Curso/ApiCatalogo/ApiCatalogo
+Warning: 3 - Failed to determine the https port for redirect.
+Error: 0 - Ocorreu uma exceção nao tratada: Status Code 500
+Information: 0 - Application is shutting down...

@@ -74,7 +74,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-    
+//Criando a Role de Admin e a Politica de autorização para o Admin
+builder.Services.AddAuthorization(opt => 
+    opt.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")));
+
 //Configurando o MySql 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, //Aqui estou, dizendo para usar, meu, SQL com essa conexão
     ServerVersion.AutoDetect(mySqlConnection))); //Auto-detectar a versão do SQL

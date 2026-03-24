@@ -5,69 +5,54 @@ using System.Security.Cryptography;
 using System.Text;
 using ApiCatalogo.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using ApiCatalogo.Model;
 
 namespace ApiCatalogo.Services;
 
 public class TokenService : ITokenService 
 {
-    public string GenerateAcessToken(IEnumerable<Claim> claims, IConfiguration _config)
+    private readonly IConfiguration _configuration;
+
+    public TokenService(IConfiguration configuration)
     {
-        // //Pegando a chave dentro o AppSettings.json, onde fica a chave secreta
-        // var chave = _config.GetSection("JWT").GetValue<string>("SecretKey") ??
-        //             throw new InvalidOperationException("Chave secreta invalida!");
+        _configuration = configuration;
+    }
 
-        // //Codificando a chave la do Jwt para padrao bytes, ja q ela é string
-        // var chavePrivada = Encoding.ASCII.GetBytes(chave);
-
-        // var credenciaisAssinatura = new SigningCredentials(new SymmetricSecurityKey(chavePrivada),
-        //     SecurityAlgorithms.HmacSha256Signature); //(SecurityAlgorithms.HmacSha256Signature)
-        // //Isso é utilizado para assinar o token
-
-        // //-------------------------Fazendo a construçao do token-------------------------
-
-        // var descricaoToken = new SecurityTokenDescriptor
-        // {
-        //     //Obtendo as informaçoes do usuario
-        //     Subject = new ClaimsIdentity(claims),
-
-        //     //Definindo a data de expiraçao do token
-        //     Expires = DateTime.UtcNow.AddMinutes(_config.GetSection("JWT").GetValue<double>("TokenValidityInMinutes")),
-
-        //     //Obtendo a audiencia
-        //     Audience = _config.GetSection("JWT").GetValue<string>("ValidAudience"),
-
-        //     //Obtendo o emissor
-        //     Issuer = _config.GetSection("JWT").GetValue<string>("ValidIssuer"),
-
-        //     SigningCredentials = credenciaisAssinatura
-        // };
-
-        // //Responsavel por criar e validar os tokens
-        // var tokenHandler = new JwtSecurityTokenHandler();
-
-        // //Criação do token
-        // var token = tokenHandler.CreateJwtSecurityToken(descricaoToken);
-
-        // return token;
-
+    public string GenerateAcessToken(ApplicationUser user)
+    {
         //--------------Uma forma mais simples e direta do que essa forma--------------
 
-        var chaveSecreta = _config.GetSection("JWT").GetValue<string>("SecretKey") ??
-                              throw new InvalidOperationException("Chave secreta invalida!");
+        try
+        {
+            var chaveSecreta = _configuration.GetSection("JWT").GetValue<string>("SecretKey") ??
+                               throw new InvalidOperationException("Chave secreta invalida!");
         
-        var chave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta)); 
+            var chave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta)); 
         
-        var credentials = new SigningCredentials(chave, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(chave, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: _config["JWT:ValidIssuer"],
-            audience: _config["JWT:ValidAudience"],
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: credentials
-        );
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: credentials
+            );
         
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public string GenerateRefreshToken()
