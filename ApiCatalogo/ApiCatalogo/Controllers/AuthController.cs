@@ -27,7 +27,9 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-
+    
+    
+    
     [HttpPost("create-role")]
     public async Task<IActionResult> CreateRole([FromBody] string roleName)
     {
@@ -54,6 +56,40 @@ public class AuthController : ControllerBase
 
     }
 
+    [HttpPost("CreateUserToRole")]
+    public async Task<IActionResult> CreateUserToRole( string userName, string roleName)
+    {
+        try
+        {
+            //Buscando o usuario no banco do identity do usuario
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado!");
+            }
+        
+            //Adicionando o usuario a role
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            if (result.Succeeded)
+            {
+                return Ok(new
+                {
+                    Mensagem = $"O usuário '{userName}' foi adicionado à role '{roleName}' com sucesso!"
+                });
+            }
+
+            return BadRequest(new
+            {
+                erro =
+                    $"Não foi possível adicionar o usuário '{userName}' à role '{roleName}': {string.Join(", ", result.Errors.Select(e => e.Description))}"
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 
 [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModelDto model)
